@@ -75,58 +75,96 @@ If you use additional sensors or controls, document all related topics and paylo
 Include the following sections in your report:
 
 ### 1) Project Links
-- **Live Dashboard URL:** [Link to deployed frontend, e.g. Vercel/Netlify/Cumulus]
-- **Wokwi Simulation URL:** [Public Wokwi project link]
-- **Backend/Database URL:** [Link to deployed backend stack, if applicable]
-- **Repository URL:** [Link to your source code]
+- **Live Dashboard URL:** [Läggs till efter deploy]
+- **Wokwi Simulation URL:** https://wokwi.com/projects/322577683855704658
+- **Backend/Database URL:** Node-RED (körs lokalt, se deploy-instruktioner)
+- **Repository URL:** https://gitlab.lnu.se/1dv027/student/na223jy/assignment-iot
 
 ### 2) Project Overview
-Briefly describe:
-- What your project does.
-- Which hardware/sensors you simulated.
-- What the dashboard allows the user to monitor/control.
+
+This project implements an end-to-end IoT pipeline using a simulated ESP32 device in Wokwi. The device reads temperature data from a DHT22 sensor every 2 seconds and publishes it via MQTT to a Node-RED backend, which stores the data in a SQLite database and visualizes it on a real-time dashboard.
+
+**Simulated hardware:**
+- ESP32 DevKit C v4 microcontroller
+- DHT22 temperature sensor (pin 15)
+- Red LED (pin 2)
+
+**Dashboard features:**
+- Real-time temperature gauge showing current value in °C
+- Line chart displaying temperature history for the last 30 minutes
+- Buttons to remotely toggle the LED on the simulated device on/off
 
 ### 3) Architecture and Data Flow
-Explain how data moves through your system:
-- Wokwi device -> MQTT broker -> processing layer/database -> dashboard.
-- Dashboard -> MQTT command topic -> device action.
 
-Use the placeholder below and replace it with your own architecture screenshot or diagram:
+Data flows through the system in two directions:
 
-```md
-[Insert architecture diagram or screenshot here]
-```
+**Sensor data (device → dashboard):** The Wokwi ESP32 reads temperature from a DHT22 sensor every 2 seconds and publishes a JSON payload to `lnu/iot/na223jy/sensor` via MQTT. Node-RED receives the message, appends a server-side timestamp, and stores it in SQLite. The Node-RED dashboard subscribes to the same topic and updates the gauge and chart in real time over WebSocket.
 
-Your diagram must explicitly label the communication protocols used between components (for example MQTT, WebSocket, HTTP/HTTPS).
+**Commands (dashboard → device):** When the user clicks a button in the Node-RED dashboard, a JSON command is published to `lnu/iot/na223jy/command/led` via MQTT. The Wokwi ESP32 is subscribed to this topic and toggles the LED accordingly.
 
-Example Mermaid diagram (you can copy and adapt):
+**Historical data (Path C):** On dashboard start, an inject node automatically triggers a Node-RED flow that queries SQLite for sensor data from the last 30 minutes (`SELECT * FROM sensor_data WHERE timestamp > ? ORDER BY id ASC`) and pushes the result to the dashboard chart.
 
 ```mermaid
 flowchart TD
-  A[Wokwi Device] -->|MQTT publish: sensor data| B[MQTT Broker]
-  B -->|sensor data| C[Backend Service]
-  C --> D[(Database)]
-  C -->|REST API| E[Web Dashboard]
-  E <-->|WebSocket, realtid| C
-  E -->|send command| C
-  C -->|MQTT publish: command| B
+  A[Wokwi ESP32 + DHT22 + LED] -->|MQTT publish every 2s| B[broker.emqx.io:1883]
+  B -->|sensor data| C[Node-RED]
+  C -->|INSERT value + server timestamp| D[(SQLite iot.db)]
+  D -->|SELECT last 30 min on startup| C
+  C -->|WebSocket| E[Node-RED Dashboard]
+  E -->|MQTT publish LED command| B
   B -->|control message| A
 ```
 
 ### 4) Database Strategy
-Document:
-- **Database chosen:** (for example InfluxDB, MongoDB, TimescaleDB)
-- **Data model:** measurement/collection/table structure
-- **Time-series considerations:** retention, indexing, query strategy, aggregation, etc.
+- **Database chosen:** SQLite – a lightweight, file-based relational database managed via the `node-red-node-sqlite` node in Node-RED. Stored locally in `iot.db`.
+- **Data model:** A single table `sensor_data` with the following schema:
+
+| Column    | Type    | Description                        |
+|-----------|---------|------------------------------------|
+| id        | INTEGER | Auto-incrementing primary key      |
+| value     | REAL    | Temperature reading in °C          |
+| timestamp | INTEGER | Unix timestamp in seconds          |
+
+- **Time-series considerations:** Data is inserted on every sensor publish (every 2 seconds). Server timestamp is stored in milliseconds (`Date.now()`). Historical data is retrieved with `SELECT * FROM sensor_data WHERE timestamp > ? ORDER BY id ASC` where the parameter is `Date.now() - 30 * 60 * 1000` (30 minutes ago). No explicit retention policy is applied for this assignment scope.
 
 ### 5) MQTT Topics and Payload Documentation
-List all topics used and provide example payloads. This should be precise enough to serve as integration documentation for your device and dashboard communication.
+
+**Broker:** `broker.emqx.io:1883`
+
+#### Sensor data – published by Wokwi, subscribed by Node-RED
+- **Topic:** `lnu/iot/na223jy/sensor`
+- **Direction:** Wokwi → Node-RED
+- **Interval:** every 2 seconds
+- **Payload:**
+```json
+{ "value": 24.0, "timestamp": 104 }
+```
+
+#### LED command – published by Node-RED dashboard, subscribed by Wokwi
+- **Topic:** `lnu/iot/na223jy/command/led`
+- **Direction:** Node-RED Dashboard → Wokwi
+- **Payload (turn on):**
+```json
+{ "state": true }
+```
+- **Payload (turn off):**
+```json
+{ "state": false }
+```
 
 ### 6) Reflection
 Answer the following:
 1. Which frontend technologies did you choose, and why?
+
+- I chose Node-RED dashboard because it is the native UI layer for Path C and allows building a complete interface without writing any custom HTML or JavaScript. The dashboard nodes (gauge, chart, button) connect directly to the MQTT flows, meaning real-time updates work out of the box without additional code.
+
 2. How does handling real-time MQTT data over WebSockets differ from a standard REST API workflow?
+
+- With a REST API, the client sends a request and waits for a response — communication is always initiated by the client. With MQTT over WebSocket, the server maintains an open connection and pushes data to the client as soon as new data arrives. This means the dashboard updates immediately when the sensor publishes a new value, without needing to poll an endpoint on a timer.
+
 3. What was the most challenging integration step (hardware, broker, backend, database, frontend), and how did you solve it?
+
+- The most challenging step was getting the MQTT connection to work reliably between Wokwi and broker.emqx.io. Wokwi uses its own IoT gateway (netwi.wokwi.com) to provide internet access to the simulation, and this gateway went down at one point, causing the simulation to hang on "Connecting to WiFi". The problem was difficult to debug because the error was not in my code but in Wokwi's infrastructure. It resolved itself once the gateway recovered.
 
 ## Hand-in Instructions
 

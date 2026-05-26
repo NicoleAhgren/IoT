@@ -1,0 +1,5 @@
+**/config.py
+config.py
+*.bin
+/firmware.bin
+firmware.bin

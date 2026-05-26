@@ -1,0 +1,532 @@
+[
+    {
+        "id": "35fe950efef4834d",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "28077940c1e8d33f",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.emqx.io",
+        "port": "1883",
+        "tls": "",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "4a7a294066cf916b",
+        "type": "sqlitedb",
+        "db": "iot.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "aa5015fa6f5628f9",
+        "type": "ui_tab",
+        "name": "IoT Dashboard",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "8a4132e7fc025e10",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "c9c4f89a80b37631",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "aa5015fa6f5628f9",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "82792e7788332707",
+        "type": "mqtt in",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "topic": "lnu/iot/na223jy/sensor",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "28077940c1e8d33f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 320,
+        "y": 240,
+        "wires": [
+            [
+                "8bad91d8b193dfcf",
+                "0c4f3a27b634bbdd"
+            ]
+        ]
+    },
+    {
+        "id": "8bad91d8b193dfcf",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Spara till DB",
+        "func": "if (!msg.payload || typeof msg.payload.value !== 'number') {\n    return null;\n}\nmsg.topic = \"INSERT INTO sensor_data (value, timestamp) VALUES (?, ?)\";\nmsg.payload = [msg.payload.value, Date.now()];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 280,
+        "wires": [
+            [
+                "e1ec12b109077f7f"
+            ]
+        ]
+    },
+    {
+        "id": "e1ec12b109077f7f",
+        "type": "sqlite",
+        "z": "35fe950efef4834d",
+        "mydb": "4a7a294066cf916b",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 590,
+        "y": 440,
+        "wires": [
+            [
+                "ac224b0acf15ac79",
+                "22aef976834ca8fd"
+            ]
+        ]
+    },
+    {
+        "id": "ac224b0acf15ac79",
+        "type": "debug",
+        "z": "35fe950efef4834d",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "2c422c5629f32e86",
+        "type": "inject",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 340,
+        "wires": [
+            [
+                "e76ec0bde13eb0c8"
+            ]
+        ]
+    },
+    {
+        "id": "e76ec0bde13eb0c8",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Skapa tabell",
+        "func": "\nmsg.topic = \"CREATE TABLE IF NOT EXISTS sensor_data (id INTEGER PRIMARY KEY AUTOINCREMENT, value REAL, timestamp INTEGER)\";\nmsg.payload = [];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 340,
+        "wires": [
+            [
+                "e1ec12b109077f7f"
+            ]
+        ]
+    },
+    {
+        "id": "0c4f3a27b634bbdd",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Extrahera värde",
+        "func": "\nmsg.payload = msg.payload.value;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 220,
+        "wires": [
+            [
+                "1e6045db29939e0a",
+                "477fc069e303ce71"
+            ]
+        ]
+    },
+    {
+        "id": "1e6045db29939e0a",
+        "type": "ui_gauge",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "group": "c9c4f89a80b37631",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperatur nu",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 960,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "477fc069e303ce71",
+        "type": "ui_chart",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "group": "c9c4f89a80b37631",
+        "order": 0,
+        "width": "6",
+        "height": "4",
+        "label": "Temperatur",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "1000",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1050,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a19738a388e7a1e",
+        "type": "ui_button",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "group": "c9c4f89a80b37631",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Tänd LED",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"state\": true}",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "7eefb7e11a231b08"
+            ]
+        ]
+    },
+    {
+        "id": "7eefb7e11a231b08",
+        "type": "mqtt out",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "topic": "lnu/iot/na223jy/command/led",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "28077940c1e8d33f",
+        "x": 460,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "8cc108f0c13777d0",
+        "type": "ui_button",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "group": "c9c4f89a80b37631",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Släck LED",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"state\": false}",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 250,
+        "y": 140,
+        "wires": [
+            [
+                "7eefb7e11a231b08"
+            ]
+        ]
+    },
+    {
+        "id": "3ec7ec9ac4c68296",
+        "type": "inject",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 440,
+        "wires": [
+            [
+                "8dd1518300449bd7"
+            ]
+        ]
+    },
+    {
+        "id": "8dd1518300449bd7",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Hämta historik",
+        "func": "msg.topic = \"SELECT * FROM sensor_data WHERE timestamp > ? ORDER BY id ASC\";\nmsg.payload = [Date.now() - 30 * 60 * 1000];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 440,
+        "wires": [
+            [
+                "e1ec12b109077f7f"
+            ]
+        ]
+    },
+    {
+        "id": "22aef976834ca8fd",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Formatera historik",
+        "func": "if (!msg.payload || msg.payload.length === 0 || !msg.payload[0].value) {\n    return null;\n}\n\nmsg.payload = [{\n    \"series\": [\"Temperatur\"],\n    \"data\": [msg.payload.map(function(row) {\n        return { x: row.timestamp, y: row.value };\n    })],\n    \"labels\": [\"\"]\n}];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 440,
+        "wires": [
+            [
+                "477fc069e303ce71"
+            ]
+        ]
+    },
+    {
+        "id": "a39d4183ca5e03a0",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-node-sqlite": "2.0.1",
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
