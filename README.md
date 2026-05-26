@@ -75,9 +75,9 @@ If you use additional sensors or controls, document all related topics and paylo
 Include the following sections in your report:
 
 ### 1) Project Links
-- **Live Dashboard URL:** [Läggs till efter deploy]
-- **Wokwi Simulation URL:** https://wokwi.com/projects/322577683855704658
-- **Backend/Database URL:** Node-RED (körs lokalt, se deploy-instruktioner)
+- **Live Dashboard URL:** https://iot-12a2.onrender.com/ui 
+- **Wokwi Simulation URL:** https://wokwi.com/projects/465074424133886977
+- **Backend/Database URL:** N/A (Node-RED hanterar både backend och dashboard via https://iot-12a2.onrender.com/ui)
 - **Repository URL:** https://gitlab.lnu.se/1dv027/student/na223jy/assignment-iot
 
 ### 2) Project Overview
