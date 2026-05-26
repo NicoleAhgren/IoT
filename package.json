@@ -5,7 +5,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "start": "node-red --settings settings.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "node-red": "^3.1.9",
