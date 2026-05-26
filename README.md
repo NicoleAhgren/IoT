@@ -123,7 +123,7 @@ flowchart TD
 |-----------|---------|------------------------------------|
 | id        | INTEGER | Auto-incrementing primary key      |
 | value     | REAL    | Temperature reading in °C          |
-| timestamp | INTEGER | Unix timestamp in seconds          |
+| timestamp | INTEGER | Unix timestamp in milliseconds          |
 
 - **Time-series considerations:** Data is inserted on every sensor publish (every 2 seconds). Server timestamp is stored in milliseconds (`Date.now()`). Historical data is retrieved with `SELECT * FROM sensor_data WHERE timestamp > ? ORDER BY id ASC` where the parameter is `Date.now() - 30 * 60 * 1000` (30 minutes ago). No explicit retention policy is applied for this assignment scope.
 
