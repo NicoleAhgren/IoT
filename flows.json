@@ -178,7 +178,8 @@
         "wires": [
             [
                 "8bad91d8b193dfcf",
-                "0c4f3a27b634bbdd"
+                "0c4f3a27b634bbdd",
+                "f1a2b3c4d5e6f7a8"
             ]
         ]
     },
@@ -187,7 +188,7 @@
         "type": "function",
         "z": "35fe950efef4834d",
         "name": "Spara till DB",
-        "func": "if (!msg.payload || typeof msg.payload.value !== 'number') {\n    return null;\n}\nmsg.topic = \"INSERT INTO sensor_data (value, timestamp) VALUES (?, ?)\";\nmsg.payload = [msg.payload.value, Date.now()];\nreturn msg;\n",
+        "func": "if (!msg.payload || typeof msg.payload.value !== 'number') {\n    return null;\n}\nmsg.topic = \"INSERT INTO sensor_data (value, humidity, timestamp) VALUES (?, ?, ?)\";\nmsg.payload = [msg.payload.value, msg.payload.humidity || null, Date.now()];\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -269,7 +270,7 @@
         "type": "function",
         "z": "35fe950efef4834d",
         "name": "Skapa tabell",
-        "func": "\nmsg.topic = \"CREATE TABLE IF NOT EXISTS sensor_data (id INTEGER PRIMARY KEY AUTOINCREMENT, value REAL, timestamp INTEGER)\";\nmsg.payload = [];\nreturn msg;\n",
+        "func": "\nmsg.topic = \"CREATE TABLE IF NOT EXISTS sensor_data (id INTEGER PRIMARY KEY AUTOINCREMENT, value REAL, humidity REAL, timestamp INTEGER)\";\nmsg.payload = [];\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -528,5 +529,53 @@
             "node-red-node-sqlite": "2.0.1",
             "node-red-dashboard": "3.6.6"
         }
+    },
+    {
+        "id": "f1a2b3c4d5e6f7a8",
+        "type": "function",
+        "z": "35fe950efef4834d",
+        "name": "Extrahera humidity",
+        "func": "msg.payload = msg.payload.humidity;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 160,
+        "wires": [
+            [
+                "b1c2d3e4f5a6b7c8"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a6b7c8",
+        "type": "ui_gauge",
+        "z": "35fe950efef4834d",
+        "name": "",
+        "group": "c9c4f89a80b37631",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Luftfuktighet nu",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 970,
+        "y": 160,
+        "wires": []
     }
 ]
