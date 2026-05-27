@@ -17,6 +17,9 @@ const settings = {
 };
 
 RED.init(server, settings);
+app.get('/admin/tslib.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'node_modules', 'tslib', 'tslib.js'));
+});
 app.use(settings.httpAdminRoot, RED.httpAdmin);
 app.use(settings.httpNodeRoot, RED.httpNode);
 
